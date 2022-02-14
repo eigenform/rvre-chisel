@@ -1,0 +1,9 @@
+verilog/*
+project/*
+target/*
+test_run_dir/*
+
+*.hex
+*.mem
+*.o
+*.bin
