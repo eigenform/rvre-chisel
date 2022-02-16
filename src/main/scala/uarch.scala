@@ -12,8 +12,6 @@ trait RVREParams {
   val NUM_ARCH_REG: Int = 32
 
   val AREG_W: Width = log2Ceil(NUM_ARCH_REG).W
-  val ADDR_W: Width = log2Ceil(XLEN).W
-
   def ArchReg() = UInt(AREG_W)
 }
 
@@ -75,29 +73,67 @@ object LSUOp extends ChiselEnum {
   val LSU_SW   = Value
 }
 
-class InstCtrlBundle extends RVREBundle {
-  val ill    = Bool()
-  val enc    = InstEnc()
+class FetchBundle extends RVREBundle {
+  val inst = Output(UInt(ILEN.W))
+  val pc   = Output(UInt(XLEN.W))
+  val err  = Output(Bool())
+}
 
-  val eu     = ExecutionUnit()
-  val alu_op = ALUOp()
-  val lsu_op = LSUOp()
-  val bcu_op = BCUOp()
+class ALUPacket extends RVREBundle {
+  val op   = Output(ALUOp())
+  val x    = Output(UInt(XLEN.W))
+  val y    = Output(UInt(XLEN.W))
+}
 
-  val rd_en  = Bool()
-  val imm_en = Bool()
-  val rd     = ArchReg()
-  val rs1    = ArchReg()
-  val rs2    = ArchReg()
-  val imm    = SInt(XLEN.W)
+class BCUPacket extends RVREBundle {
+  val op   = Output(BCUOp())
+  val x    = Output(UInt(XLEN.W))
+  val y    = Output(UInt(XLEN.W))
+  val pc   = Output(UInt(XLEN.W))
+}
+
+class LSUPacket extends RVREBundle {
+  val op   = Output(LSUOp())
+  val base = Output(UInt(XLEN.W))
+  val off  = Output(UInt(XLEN.W))
+  val data = Output(UInt(XLEN.W))
+}
+
+class ALUResult extends RVREBundle {
+  val res = Output(UInt(XLEN.W))
+}
+class LSUResult extends RVREBundle {
+  val res = Output(UInt(XLEN.W))
+}
+class BCUResult extends RVREBundle {
+  val taken = Output(Bool())
+  val pc    = Output(UInt(XLEN.W))
+}
+
+
+object AccessWidth extends ChiselEnum {
+  val BYTE, HALF, WORD = Value
+}
+
+// Output from the decode unit.
+class DecodeBundle extends RVREBundle {
+  val ill    = Output(Bool())
+  val enc    = Output(InstEnc())
+  val eu     = Output(ExecutionUnit())
+  val alu_op = Output(ALUOp())
+  val lsu_op = Output(LSUOp())
+  val bcu_op = Output(BCUOp())
+  val rd_en  = Output(Bool())
+  val imm_en = Output(Bool())
+  val rd     = Output(ArchReg())
+  val rs1    = Output(ArchReg())
+  val rs2    = Output(ArchReg())
+  val imm    = Output(SInt(XLEN.W))
+  val pc     = Output(UInt(XLEN.W))
 }
 
 class Uop extends RVREBundle {
-  val ctrl = new InstCtrlBundle // Output from decode unit
+  val ctrl = new DecodeBundle // Output from decode unit
 }
 
-
-object PrintParameters extends App {
-  println("Micro-op size: " + (new Uop).getWidth + " bits")
-}
 

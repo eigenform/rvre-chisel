@@ -1,4 +1,4 @@
-package rvre.decode
+package rvre.core
 
 import chisel3._
 import chisel3.util._
@@ -79,13 +79,14 @@ object DecoderTable {
   }
 }
 
+
 class DecodeUnit extends RVREModule {
   val io = IO(new Bundle {
-    val inst  = Input(UInt(XLEN.W))
-    val ctrl  = Output(new InstCtrlBundle)
+    val in  = Flipped(Decoupled(new FetchBundle))
+    val out = Decoupled(new DecodeBundle)
   })
 
-  val inst = io.inst
+  val inst = io.in.bits.inst
   val imm  = WireDefault(0.S(XLEN.W))
 
   // Use some logic minimization (with ESPRESSO) to map an instruction to its 
@@ -114,20 +115,26 @@ class DecodeUnit extends RVREModule {
   }
 
   // Fields from the main decoder logic
-  io.ctrl.ill    := ctrl.ill
-  io.ctrl.eu     := ctrl.eu
-  io.ctrl.enc    := ctrl.enc
-  io.ctrl.rd_en  := ctrl.rd_en
-  io.ctrl.imm_en := ctrl.imm_en
-  io.ctrl.alu_op := ctrl.alu_op
-  io.ctrl.bcu_op := ctrl.bcu_op
-  io.ctrl.lsu_op := ctrl.lsu_op
+  io.out.bits.ill    := ctrl.ill
+  io.out.bits.eu     := ctrl.eu
+  io.out.bits.enc    := ctrl.enc
+  io.out.bits.rd_en  := ctrl.rd_en
+  io.out.bits.imm_en := ctrl.imm_en
+  io.out.bits.alu_op := ctrl.alu_op
+  io.out.bits.bcu_op := ctrl.bcu_op
+  io.out.bits.lsu_op := ctrl.lsu_op
 
   // Fields fixed in the instruction encoding
-  io.ctrl.rd     := inst(11, 7)
-  io.ctrl.rs1    := inst(19, 15)
-  io.ctrl.rs2    := inst(24, 20)
-  io.ctrl.imm    := imm
+  io.out.bits.rd     := inst(11, 7)
+  io.out.bits.rs1    := inst(19, 15)
+  io.out.bits.rs2    := inst(24, 20)
+  io.out.bits.imm    := imm
+
+  // Fields from the fetch unit
+  io.out.bits.pc     := io.in.bits.pc
+
+  io.in.ready  := io.out.ready
+  io.out.valid := io.in.fire
 }
 
 
