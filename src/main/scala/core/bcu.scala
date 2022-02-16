@@ -29,5 +29,13 @@ class BranchComparisonUnit extends RVREModule {
     is (BCU_GE)  { io.out.bits.taken := (x.asSInt > y.asSInt) }
     is (BCU_GEU) { io.out.bits.taken := (x > y) }
   }
+
+  when (io.in.fire) {
+    printf("BCU: x=%x y=%x taken=%b pc=%x\n", 
+      io.in.bits.x, io.in.bits.y, io.out.bits.taken, io.out.bits.pc)
+  }
+
+
+
 }
 

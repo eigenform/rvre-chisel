@@ -31,6 +31,11 @@ class ArithmeticLogicUnit extends RVREModule {
     is (ALU_SLT)  { io.out.bits := (x.asSInt < y.asSInt).asUInt }
     is (ALU_SLL)  { io.out.bits := x << shamt }
   }
+
+  when (io.in.fire) {
+    printf("ALU: x=%x y=%x res=%x\n", io.in.bits.x, io.in.bits.y, io.out.bits)
+  }
+
 }
 
 

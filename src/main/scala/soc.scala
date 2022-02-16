@@ -30,6 +30,7 @@ class IROMWrapper(rom_file: String) extends RVREModule {
   when (io.bus.req.fire) {
     io.bus.resp.bits.err  := err
     io.bus.resp.bits.data := rom.read(addr)
+    printf("IROMWrapper: read data %x\n", io.bus.resp.bits.data)
   }
   io.bus.resp.valid     := io.bus.req.fire
   io.bus.req.ready      := true.B

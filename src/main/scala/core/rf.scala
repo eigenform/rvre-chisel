@@ -18,8 +18,8 @@ class RFWritePortBundle extends RVREBundle {
 
 class RegisterFile extends RVREModule {
   val io = IO(new Bundle {
-    val rp = Flipped(Vec(2, new RFReadPortBundle))
-    val wp = Flipped(Vec(1, Valid(new RFWritePortBundle)))
+    val rp = Vec(2, Flipped(new RFReadPortBundle))
+    val wp = Vec(1, Flipped(Valid(new RFWritePortBundle)))
   })
 
   annotate(new ChiselAnnotation { override def toFirrtl = MemorySynthInit })

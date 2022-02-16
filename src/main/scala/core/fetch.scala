@@ -19,12 +19,20 @@ class FetchUnit extends RVREModule {
   val npc     = Mux(io.npc_in.valid, io.npc_in.bits, npc_seq)
 
   val pc_wren = io.npc_in.valid || io.bus.req.fire
-  when (pc_wren) { pc := npc }
+  when (pc_wren) { 
+    printf("FetchUnit: pc=%x -> pc=%x\n", pc, npc)
+    pc := npc 
+  }
 
   io.bus.req.bits.addr     := pc
   io.bus.req.bits.mask     := "b1111".U
   io.bus.req.bits.st_en    := false.B
   io.bus.req.bits.st_data  := 0.U
+
+  when (io.bus.req.fire) {
+    val req = io.bus.req
+    printf("FetchUnit: req addr=%x\n", io.bus.req.bits.addr)
+  }
 
   io.bus.req.valid  := io.out.ready
   io.bus.resp.ready := io.out.ready
@@ -32,6 +40,8 @@ class FetchUnit extends RVREModule {
   io.out.bits.err   := io.bus.resp.bits.err
   io.out.bits.pc    := pc
   io.out.valid      := io.bus.resp.valid
+
+
 }
 
 

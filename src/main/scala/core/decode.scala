@@ -45,7 +45,7 @@ object DecoderTable {
     BGEU    -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_GEU) ## e(LSU_ILL),
     JALR    -> e(EU_BCU) ## e(ENC_I)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
     JAL     -> e(EU_BCU) ## e(ENC_J)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    LUI     -> e(EU_ALU) ## e(ENC_U)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    LUI     -> e(EU_ALU) ## e(ENC_U)   ## N ## Y ## Y ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
     AUIPC   -> e(EU_ALU) ## e(ENC_U)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
     ADDI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
     SLTI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_SLT)  ## e(BCU_ILL) ## e(LSU_ILL),
@@ -87,6 +87,7 @@ class DecodeUnit extends RVREModule {
   })
 
   val inst = io.in.bits.inst
+
   val imm  = WireDefault(0.S(XLEN.W))
 
   // Use some logic minimization (with ESPRESSO) to map an instruction to its 
@@ -135,6 +136,18 @@ class DecodeUnit extends RVREModule {
 
   io.in.ready  := io.out.ready
   io.out.valid := io.in.fire
+
+  when (io.in.fire) {
+    printf("DecodeUnit: in inst=%x, pc=%x\n", io.in.bits.inst, io.in.bits.pc)
+  }
+  when (io.out.fire) {
+    printf("DecodeUnit: out (rd=%d, en=%b) (rs1=%d rs2=%d) (imm=%x, en=%b)\n",
+      io.out.bits.rd, io.out.bits.rd_en,
+      io.out.bits.rs1, io.out.bits.rs2, 
+      io.out.bits.imm, io.out.bits.imm_en)
+  }
+
+
 }
 
 

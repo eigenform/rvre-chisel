@@ -46,4 +46,12 @@ class ScheduleUnit extends RVREModule {
     io.out_bcu.valid -> io.out_bcu.ready,
   ))
 
+  when (io.in.fire) {
+    printf("Sched: out_alu=%b out_lsu=%b out_bcu=%b rp0(%d)=%x rp1(%d)=%x\n",
+      io.out_alu.valid, io.out_lsu.valid, io.out_bcu.valid,
+      io.in.bits.rs1, io.rf_rp(0).data,
+      io.in.bits.rs2, io.rf_rp(1).data,
+    )
+  }
+
 }
