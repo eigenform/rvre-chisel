@@ -33,6 +33,7 @@ class ArithmeticLogicUnit extends RVREModule {
   }
 
   when (io.in.fire) {
+    assert(io.in.bits.op =/= ALU_ILL)
     printf("ALU: x=%x y=%x res=%x\n", io.in.bits.x, io.in.bits.y, io.out.bits)
   }
 

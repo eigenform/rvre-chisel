@@ -32,6 +32,9 @@ class LoadStoreUnit extends RVREModule {
   switch (state) {
     is (State.IDLE) {
       when (io.bus.req.fire) {
+        printf("LSU: req addr=%x mask=%b st_en=%b st_data=%x\n",
+          io.bus.req.bits.addr, io.bus.req.bits.mask,
+          io.bus.req.bits.st_en, io.bus.req.bits.st_data)
         state := State.BUSY
       }
     }
@@ -53,5 +56,9 @@ class LoadStoreUnit extends RVREModule {
   io.bus.resp.ready := true.B
 
   io.out.bits       := io.bus.resp.bits.data
+
+  when (io.in.fire) {
+    assert(io.in.bits.op =/= LSU_ILL)
+  }
 
 }

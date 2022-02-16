@@ -33,4 +33,15 @@ class RetireUnit extends RVREModule {
   io.npc_out.valid := npc_wb
   io.npc_out.bits  := io.bcu_res.bits.pc
 
+  when (alu_wb) {
+    printf("Retire: alu_wb rd=%d <- %x\n", io.uop.bits.rd, io.alu_res.bits)
+  }
+  when (lsu_wb) {
+    printf("Retire: lsu_wb rd=%d <- %x\n", io.uop.bits.rd, io.lsu_res.bits)
+  }
+  when (~alu_wb && ~lsu_wb) {
+    printf("Retire: nothing to retire\n")
+  }
+
+
 }
