@@ -30,7 +30,7 @@ class IROMWrapper(rom_file: String) extends RVREModule {
   when (io.bus.req.fire) {
     io.bus.resp.bits.err  := err
     io.bus.resp.bits.data := rom.read(addr)
-    printf("IROMWrapper: read data %x\n", io.bus.resp.bits.data)
+    printf("IROMWrapper: resp data %x\n", io.bus.resp.bits.data)
   }
   io.bus.resp.valid     := io.bus.req.fire
   io.bus.req.ready      := true.B
@@ -52,6 +52,10 @@ class RAMWrapper(ram_file: String = "") extends RVREModule {
   resp.err  := false.B
 
   when (io.bus.req.fire) {
+    printf("RAMWrapper: req addr=%x, mask=%b, st_en=%b, st_data=%x\n",
+      io.bus.req.bits.addr, io.bus.req.bits.mask,
+      io.bus.req.bits.st_en, io.bus.req.bits.st_data)
+
     when (req.st_en) {
       ram.write(
         addr, req.st_data.asTypeOf(Vec(4, UInt(8.W))), req.mask.asBools

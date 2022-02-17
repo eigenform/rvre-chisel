@@ -23,8 +23,29 @@ class RegisterFile extends RVREModule {
   })
 
   annotate(new ChiselAnnotation { override def toFirrtl = MemorySynthInit })
-  val rf = SyncReadMem(32, UInt(XLEN.W))
+  val rf = Reg(Vec(32, UInt(XLEN.W)))
+  printf("RF: x1=%x x2=%x x3=%x x4=%x\n", rf(1), rf(2), rf(3), rf(4))
+  printf("RF: x5=%x x6=%x x7=%x x8=%x\n", rf(5), rf(6), rf(7), rf(8))
+
+  //for (rp <- io.rp) {
+  //  when (rp.addr === 0.U) {
+  //    rp.data := 0.U
+  //  } .otherwise {
+  //    rp.data := rf(rp.addr)
+  //  }
+  //}
+  //for (wp <- io.wp) {
+  //  when (wp.valid) {
+  //    rf(wp.bits.addr) := wp.bits.data
+  //  }
+  //}
+
   for (rp <- io.rp) {
+    for (wp <- io.wp) {
+      when ( wp.valid && (wp.bits.addr === rp.addr) ) {
+        rp.data := wp.bits.data
+      }
+    }
     when (rp.addr === 0.U) {
       rp.data := 0.U
     } .otherwise {
@@ -36,4 +57,6 @@ class RegisterFile extends RVREModule {
       rf(wp.bits.addr) := wp.bits.data
     }
   }
+
+
 }
