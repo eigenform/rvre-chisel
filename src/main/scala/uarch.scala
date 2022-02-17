@@ -125,6 +125,7 @@ class DecodeBundle extends RVREBundle {
   val bcu_op = Output(BCUOp())
   val rd_en  = Output(Bool())
   val imm_en = Output(Bool())
+  val pc_en  = Output(Bool())
   val rd     = Output(ArchReg())
   val rs1    = Output(ArchReg())
   val rs2    = Output(ArchReg())

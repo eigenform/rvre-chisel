@@ -24,23 +24,13 @@ class RegisterFile extends RVREModule {
 
   annotate(new ChiselAnnotation { override def toFirrtl = MemorySynthInit })
   val rf = Reg(Vec(32, UInt(XLEN.W)))
+
   printf("RF: x1=%x x2=%x x3=%x x4=%x\n", rf(1), rf(2), rf(3), rf(4))
   printf("RF: x5=%x x6=%x x7=%x x8=%x\n", rf(5), rf(6), rf(7), rf(8))
 
-  //for (rp <- io.rp) {
-  //  when (rp.addr === 0.U) {
-  //    rp.data := 0.U
-  //  } .otherwise {
-  //    rp.data := rf(rp.addr)
-  //  }
-  //}
-  //for (wp <- io.wp) {
-  //  when (wp.valid) {
-  //    rf(wp.bits.addr) := wp.bits.data
-  //  }
-  //}
-
+  // Generate hardware for read ports
   for (rp <- io.rp) {
+    // Add bypasses from each read port to all write ports
     for (wp <- io.wp) {
       when ( wp.valid && (wp.bits.addr === rp.addr) ) {
         rp.data := wp.bits.data
@@ -52,11 +42,12 @@ class RegisterFile extends RVREModule {
       rp.data := rf(rp.addr)
     }
   }
+
+  // Generate hardware for write ports
   for (wp <- io.wp) {
     when (wp.valid) {
       rf(wp.bits.addr) := wp.bits.data
     }
   }
-
 
 }

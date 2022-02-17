@@ -42,10 +42,18 @@ class RAMWrapper(ram_file: String = "") extends RVREModule {
     val bus = rvre.bus.RVREBusPort.sink()
   })
 
+  // FIXME: You can't initialize this because it's a vector of bytes.
+  // How do we deal with this?
   annotate(new ChiselAnnotation { override def toFirrtl = MemorySynthInit })
   val ram  = SyncReadMem(RAM_SIZE / 4, Vec(4, UInt(8.W)))
+  if (ram_file.trim().nonEmpty) {
+    loadMemoryFromFileInline(ram, ram_file)
+  }
+
   val req  = io.bus.req.bits
   val resp = io.bus.resp.bits
+
+  // Only use the bottom bits from requested addresses
   val addr = req.addr(log2Ceil(RAM_SIZE), 0)
 
   resp.data := 0.U
@@ -73,8 +81,8 @@ class RAMWrapper(ram_file: String = "") extends RVREModule {
 
 
 class RVRESoc extends RVREModule {
-  val irom = Module(new IROMWrapper(rom_file = "irom/test.mem")) 
-  val sram = Module(new RAMWrapper())
+  val irom = Module(new IROMWrapper(rom_file = "irom/test.text.mem")) 
+  val sram = Module(new RAMWrapper(ram_file = "irom/test.data.mem"))
   val hart = Module(new rvre.core.RVREHart)
 
   hart.io.ibus <> irom.io.bus

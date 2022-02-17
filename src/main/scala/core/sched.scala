@@ -20,7 +20,9 @@ class ScheduleUnit extends RVREModule {
   io.rf_rp(1).addr := io.in.bits.rs2
 
   io.out_alu.bits.op := io.in.bits.alu_op
-  io.out_alu.bits.x  := io.rf_rp(0).data
+  io.out_alu.bits.x  := Mux(io.in.bits.pc_en, 
+    io.in.bits.pc, io.rf_rp(0).data
+  )
   io.out_alu.bits.y  := Mux(io.in.bits.imm_en,
     io.in.bits.imm.asUInt, io.rf_rp(1).data
   )

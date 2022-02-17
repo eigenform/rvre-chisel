@@ -25,6 +25,7 @@ object DecoderTable {
     val ill    = Bool()
     val rd_en  = Bool()
     val imm_en = Bool()
+    val pc_en  = Bool()
     var alu_op = ALUOp()
     var bcu_op = BCUOp()
     var lsu_op = LSUOp()
@@ -37,45 +38,45 @@ object DecoderTable {
   val Y = BitPat.Y()
 
   val matches = Array(
-    BEQ     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_EQ)  ## e(LSU_ILL),   
-    BNE     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_NEQ) ## e(LSU_ILL),
-    BLT     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_LT)  ## e(LSU_ILL),
-    BGE     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_GE)  ## e(LSU_ILL),
-    BLTU    -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_LTU) ## e(LSU_ILL),
-    BGEU    -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_GEU) ## e(LSU_ILL),
-    JALR    -> e(EU_BCU) ## e(ENC_I)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    JAL     -> e(EU_BCU) ## e(ENC_J)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    LUI     -> e(EU_ALU) ## e(ENC_U)   ## N ## Y ## Y ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
-    AUIPC   -> e(EU_ALU) ## e(ENC_U)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    ADDI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SLTI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_SLT)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SLTIU   -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_SLTU) ## e(BCU_ILL) ## e(LSU_ILL),
-    XORI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_XOR)  ## e(BCU_ILL) ## e(LSU_ILL),
-    ORI     -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_OR)   ## e(BCU_ILL) ## e(LSU_ILL),
-    ANDI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## e(ALU_AND)  ## e(BCU_ILL) ## e(LSU_ILL),
-    ADD     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SUB     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SUB)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SLL     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SLL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SLT     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SLT)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SLTU    -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SLTU) ## e(BCU_ILL) ## e(LSU_ILL),
-    XOR     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_XOR)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SRL     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SRL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SRA     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_SRA)  ## e(BCU_ILL) ## e(LSU_ILL),
-    OR      -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_OR)   ## e(BCU_ILL) ## e(LSU_ILL),
-    AND     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## e(ALU_AND)  ## e(BCU_ILL) ## e(LSU_ILL),
-    LB      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LB),
-    LH      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LH),
-    LW      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LW),
-    LBU     -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    LHU     -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
-    SB      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SB),
-    SH      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SH),
-    SW      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SW),
+    BEQ     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_EQ)  ## e(LSU_ILL),   
+    BNE     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_NEQ) ## e(LSU_ILL),
+    BLT     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_LT)  ## e(LSU_ILL),
+    BGE     -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_GE)  ## e(LSU_ILL),
+    BLTU    -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_LTU) ## e(LSU_ILL),
+    BGEU    -> e(EU_BCU) ## e(ENC_B)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_GEU) ## e(LSU_ILL),
+    JALR    -> e(EU_BCU) ## e(ENC_I)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    JAL     -> e(EU_BCU) ## e(ENC_J)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    LUI     -> e(EU_ALU) ## e(ENC_U)   ## N ## Y ## Y ## N ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
+    AUIPC   -> e(EU_ALU) ## e(ENC_U)   ## N ## Y ## Y ## Y ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
+    ADDI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SLTI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_SLT)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SLTIU   -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_SLTU) ## e(BCU_ILL) ## e(LSU_ILL),
+    XORI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_XOR)  ## e(BCU_ILL) ## e(LSU_ILL),
+    ORI     -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_OR)   ## e(BCU_ILL) ## e(LSU_ILL),
+    ANDI    -> e(EU_ALU) ## e(ENC_I)   ## N ## Y ## Y ## N ## e(ALU_AND)  ## e(BCU_ILL) ## e(LSU_ILL),
+    ADD     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_ADD)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SUB     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SUB)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SLL     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SLL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SLT     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SLT)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SLTU    -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SLTU) ## e(BCU_ILL) ## e(LSU_ILL),
+    XOR     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_XOR)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SRL     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SRL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SRA     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_SRA)  ## e(BCU_ILL) ## e(LSU_ILL),
+    OR      -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_OR)   ## e(BCU_ILL) ## e(LSU_ILL),
+    AND     -> e(EU_ALU) ## e(ENC_R)   ## N ## Y ## N ## N ## e(ALU_AND)  ## e(BCU_ILL) ## e(LSU_ILL),
+    LB      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LB),
+    LH      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LH),
+    LW      -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_LW),
+    LBU     -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    LHU     -> e(EU_LSU) ## e(ENC_I)   ## N ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL),
+    SB      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SB),
+    SH      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SH),
+    SW      -> e(EU_LSU) ## e(ENC_S)   ## N ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_SW),
     //FENCE   -> List(),
     //FENCE_I -> List(),
   )
   val default = {
-               e(EU_ILL) ## e(ENC_ILL) ## Y ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL) 
+               e(EU_ILL) ## e(ENC_ILL) ## Y ## N ## N ## N ## e(ALU_ILL)  ## e(BCU_ILL) ## e(LSU_ILL) 
   }
 }
 
@@ -121,6 +122,7 @@ class DecodeUnit extends RVREModule {
   io.out.bits.enc    := ctrl.enc
   io.out.bits.rd_en  := ctrl.rd_en
   io.out.bits.imm_en := ctrl.imm_en
+  io.out.bits.pc_en  := ctrl.pc_en
   io.out.bits.alu_op := ctrl.alu_op
   io.out.bits.bcu_op := ctrl.bcu_op
   io.out.bits.lsu_op := ctrl.lsu_op
