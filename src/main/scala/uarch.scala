@@ -21,56 +21,69 @@ abstract class RVREModule extends Module with RVREParams
 
 // Set of RISC-V instruction encodings.
 object InstEnc extends ChiselEnum {
-  val ENC_ILL = Value
-  val ENC_R   = Value
-  val ENC_I   = Value
-  val ENC_S   = Value
-  val ENC_B   = Value
-  val ENC_U   = Value
-  val ENC_J   = Value
+  val ENC_ILL = Value(0.U)
+  val ENC_R   = Value(1.U)
+  val ENC_I   = Value(2.U)
+  val ENC_S   = Value(3.U)
+  val ENC_B   = Value(4.U)
+  val ENC_U   = Value(5.U)
+  val ENC_J   = Value(6.U)
 }
 
 // Set of execution units in the machine.
 object ExecutionUnit extends ChiselEnum {
-  val EU_ILL = Value
-  val EU_ALU = Value // Arithemetic/logic unit
-  val EU_LSU = Value // Load/store unit
-  val EU_BCU = Value // Branch comparison unit (?)
+  val EU_ILL = Value(0.U)
+  val EU_ALU = Value(1.U) // Arithemetic/logic unit
+  val EU_LSU = Value(2.U) // Load/store unit
+  val EU_BCU = Value(3.U) // Branch comparison unit (?)
 }
 
 // ALU operations
 object ALUOp extends ChiselEnum {
-  val ALU_ILL  = Value
-  val ALU_ADD  = Value
-  val ALU_SUB  = Value
-  val ALU_SLL  = Value
-  val ALU_SLT  = Value
-  val ALU_SLTU = Value
-  val ALU_XOR  = Value
-  val ALU_SRL  = Value
-  val ALU_SRA  = Value
-  val ALU_OR   = Value
-  val ALU_AND  = Value
+  val ALU_ILL  = Value(0.U)
+  val ALU_ADD  = Value(1.U)
+  val ALU_SUB  = Value(2.U)
+  val ALU_SLL  = Value(3.U)
+  val ALU_SLT  = Value(4.U)
+  val ALU_SLTU = Value(5.U)
+  val ALU_XOR  = Value(6.U)
+  val ALU_SRL  = Value(7.U)
+  val ALU_SRA  = Value(8.U)
+  val ALU_OR   = Value(9.U)
+  val ALU_AND  = Value(10.U)
 }
 
 object BCUOp extends ChiselEnum {
-  val BCU_ILL  = Value
-  val BCU_EQ   = Value
-  val BCU_NEQ  = Value
-  val BCU_LT   = Value
-  val BCU_LTU  = Value
-  val BCU_GE   = Value
-  val BCU_GEU  = Value
+  val BCU_ILL  = Value(0.U)
+  val BCU_EQ   = Value(1.U)
+  val BCU_NEQ  = Value(2.U)
+  val BCU_LT   = Value(3.U)
+  val BCU_LTU  = Value(4.U)
+  val BCU_GE   = Value(5.U)
+  val BCU_GEU  = Value(6.U)
 }
 
 object LSUOp extends ChiselEnum {
-  val LSU_ILL  = Value
-  val LSU_LB   = Value
-  val LSU_LH   = Value
-  val LSU_LW   = Value
-  val LSU_SB   = Value
-  val LSU_SH   = Value
-  val LSU_SW   = Value
+  val LSU_ILL  = Value(0.U)
+  val LSU_LB   = Value(1.U)
+  val LSU_LH   = Value(2.U)
+  val LSU_LW   = Value(3.U)
+  val LSU_LBU  = Value(4.U)
+  val LSU_LHU  = Value(5.U)
+  val LSU_SB   = Value(6.U)
+  val LSU_SH   = Value(7.U)
+  val LSU_SW   = Value(8.U)
+}
+
+
+object ControlFlowOp extends ChiselEnum {
+  val CF_SEQ = Value(0.U)
+  val CF_BR  = Value(1.U)
+}
+
+class ControlFlowBundle extends RVREBundle {
+  val op  = Output(ControlFlowOp())
+  val tgt = Output(UInt(XLEN.W))
 }
 
 class FetchBundle extends RVREBundle {
@@ -86,10 +99,11 @@ class ALUPacket extends RVREBundle {
 }
 
 class BCUPacket extends RVREBundle {
-  val op   = Output(BCUOp())
-  val x    = Output(UInt(XLEN.W))
-  val y    = Output(UInt(XLEN.W))
-  val pc   = Output(UInt(XLEN.W))
+  val op     = Output(BCUOp())
+  val x      = Output(UInt(XLEN.W))
+  val y      = Output(UInt(XLEN.W))
+  val pc     = Output(UInt(XLEN.W))
+  val pc_off = Output(UInt(XLEN.W))
 }
 
 class LSUPacket extends RVREBundle {
@@ -103,7 +117,8 @@ class ALUResult extends RVREBundle {
   val res = Output(UInt(XLEN.W))
 }
 class LSUResult extends RVREBundle {
-  val res = Output(UInt(XLEN.W))
+  val data  = Output(UInt(XLEN.W))
+  val store = Output(Bool())
 }
 class BCUResult extends RVREBundle {
   val taken = Output(Bool())

@@ -11,15 +11,16 @@ class BranchComparisonUnit extends RVREModule {
     val out = Output(Valid(new BCUResult))
   })
 
-  val x  = io.in.bits.x
-  val y  = io.in.bits.y
-  val op = io.in.bits.op
-  val pc = io.in.bits.pc
+  val x   = io.in.bits.x
+  val y   = io.in.bits.y
+  val op  = io.in.bits.op
+  val pc  = io.in.bits.pc
+  val off = io.in.bits.pc_off
 
   io.out.bits.taken := false.B
   io.in.ready       := true.B
   io.out.valid      := io.in.fire
-  io.out.bits.pc    := pc
+  io.out.bits.pc    := pc + off
 
   switch (op) {
     is (BCU_EQ)  { io.out.bits.taken := (x === y) }

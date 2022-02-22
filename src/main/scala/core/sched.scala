@@ -27,10 +27,11 @@ class ScheduleUnit extends RVREModule {
     io.in.bits.imm.asUInt, io.rf_rp(1).data
   )
 
-  io.out_bcu.bits.op := io.in.bits.bcu_op
-  io.out_bcu.bits.x  := io.rf_rp(0).data
-  io.out_bcu.bits.y  := io.rf_rp(1).data
-  io.out_bcu.bits.pc := io.in.bits.pc
+  io.out_bcu.bits.op     := io.in.bits.bcu_op
+  io.out_bcu.bits.x      := io.rf_rp(0).data
+  io.out_bcu.bits.y      := io.rf_rp(1).data
+  io.out_bcu.bits.pc     := io.in.bits.pc
+  io.out_bcu.bits.pc_off := io.in.bits.imm.asUInt
 
   io.out_lsu.bits.op   := io.in.bits.lsu_op
   io.out_lsu.bits.base := io.rf_rp(0).data

@@ -21,10 +21,10 @@ object VerilogEmitter extends App {
 
   (new chisel3.stage.ChiselStage)
     .emitVerilog(new rvre.soc.RVRESoc, emitter_args)
-  (new chisel3.stage.ChiselStage)
-    .emitVerilog(new rvre.soc.IROMWrapper("irom/test.mem"), emitter_args)
-  (new chisel3.stage.ChiselStage)
-    .emitVerilog(new rvre.soc.RAMWrapper, emitter_args)
+  //(new chisel3.stage.ChiselStage)
+  //  .emitVerilog(new rvre.soc.IROMWrapper("irom/test.mem"), emitter_args)
+  //(new chisel3.stage.ChiselStage)
+  //  .emitVerilog(new rvre.soc.RAMWrapper, emitter_args)
 
 
 

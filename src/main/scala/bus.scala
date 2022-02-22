@@ -12,7 +12,9 @@ class RVREBusIO extends RVREBundle {
 
   class RVREBusRequest extends RVREBundle {
     val addr     = Output(UInt(XLEN.W))
-    val mask     = Output(UInt((XLEN / 8).W))
+    val signed   = Output(Bool())
+    // log2 number of bytes (1 << n) in this request
+    val bytes    = Output(UInt(log2Ceil(XLEN / 8).W))
     val st_en    = Output(Bool())
     val st_data  = Output(UInt(XLEN.W))
   }

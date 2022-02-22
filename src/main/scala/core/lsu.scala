@@ -9,7 +9,7 @@ import rvre.uarch.LSUOp._
 class LoadStoreUnit extends RVREModule {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new LSUPacket))
-    val out = Output(Valid(UInt(XLEN.W)))
+    val out = Output(Valid(new LSUResult))
     val bus = rvre.bus.RVREBusPort.source()
   })
 
@@ -17,48 +17,56 @@ class LoadStoreUnit extends RVREModule {
     val IDLE, BUSY = Value
   }
 
-  val state = RegInit(State.IDLE)
-  val addr  = io.in.bits.base + io.in.bits.off
-  val store = ( (io.in.bits.op === LSUOp.LSU_SB) 
-    || (io.in.bits.op === LSUOp.LSU_SH) 
-    || (io.in.bits.op === LSUOp.LSU_SW)
-  )
-  val mask = Mux1H(Seq(
-    ((io.in.bits.op === LSU_SB) || (io.in.bits.op === LSU_LB)) -> "b0001".U,
-    ((io.in.bits.op === LSU_SH) || (io.in.bits.op === LSU_LH)) -> "b0011".U,
-    ((io.in.bits.op === LSU_SW) || (io.in.bits.op === LSU_LW)) -> "b1111".U,
+  val op     = io.in.bits.op
+  val addr   = io.in.bits.base + io.in.bits.off
+  val store  = ( (op === LSU_SB) || (op === LSU_SH) || (op === LSU_SW) )
+  val signed = Mux(((op === LSU_LB) || (op === LSU_LH)), true.B, false.B)
+
+  val bytes = Mux1H(Seq(
+    ((op === LSU_SB) || (op === LSU_LB) || (op === LSU_LBU)) -> "b00".U,
+    ((op === LSU_SH) || (op === LSU_LH) || (op === LSU_LHU)) -> "b01".U,
+    ((op === LSU_SW) || (op === LSU_LW)) -> "b10".U,
   ))
 
+  // Using a register here means we cannot complete load/store requests
+  // asynchronously (the latency is at least one clock cycle).
+  val state = RegInit(State.IDLE)
   switch (state) {
     is (State.IDLE) {
       when (io.bus.req.fire) {
-        printf("LSU: req addr=%x mask=%b st_en=%b st_data=%x\n",
-          io.bus.req.bits.addr, io.bus.req.bits.mask,
+        printf("LSU: bus req addr=%x bytes=%b signed=%b st_en=%b st_data=%x\n",
+          io.bus.req.bits.addr, io.bus.req.bits.bytes, io.bus.req.bits.signed,
           io.bus.req.bits.st_en, io.bus.req.bits.st_data)
         state := State.BUSY
       }
     }
     is (State.BUSY) {
       when (io.bus.resp.fire) {
+        printf("LSU: bus resp data=%x err=%b\n",
+          io.bus.resp.bits.data, io.bus.resp.bits.err)
         state := State.IDLE
       }
     }
   }
 
   io.bus.req.bits.addr    := addr
-  io.bus.req.bits.mask    := mask
+  io.bus.req.bits.bytes   := bytes
+  io.bus.req.bits.signed  := signed
   io.bus.req.bits.st_en   := store
-  io.bus.req.bits.st_data := io.in.bits.data
+  io.bus.req.bits.st_data := Mux(store, io.in.bits.data, 0.U)
 
   io.out.valid      := io.bus.resp.fire
   io.in.ready       := state === State.IDLE
   io.bus.req.valid  := io.in.valid
   io.bus.resp.ready := true.B
 
-  io.out.bits       := io.bus.resp.bits.data
+  io.out.bits.data  := io.bus.resp.bits.data
+  io.out.bits.store := store
 
   when (io.in.fire) {
     assert(io.in.bits.op =/= LSU_ILL)
+    printf("LSU: packet op=%d base=%x off=%x data=%x\n", 
+      io.in.bits.op.asUInt, io.in.bits.base, io.in.bits.off, io.in.bits.data)
   }
-
 }
+

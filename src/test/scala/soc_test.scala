@@ -8,7 +8,7 @@ class SocSpec extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "RVRESoc"
   it should "work" in {
     test(new rvre.soc.RVRESoc) { dut => 
-      for (i <- 1 to 20) {
+      for (i <- 1 to 32) {
         dut.clock.step()
         println("------- step " + i + " -------")
       }
